@@ -16,7 +16,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name           = "${local.cluster_name}-node-group-1"
+      name           = "eks-node-group-1"
       instance_types = ["${var.worker_nodes_type}"]
       min_size       = 1
       max_size       = 5
@@ -29,7 +29,7 @@ module "eks" {
     }
 
     #    two = {
-    #      name = "${local.cluster_name}-node-group-2"
+    #      name = "eks-node-group-2"
     #
     #      instance_types = ["t3.medium"]
     #
