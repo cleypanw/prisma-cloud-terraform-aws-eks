@@ -85,13 +85,11 @@ jobs:
 
     - name: Terraform Apply
       id: apply
-      run: terraform apply
+      run: |
+        terraform apply -var region=${{ github.event.inputs.AWS_REGION }}-var name_prefix=${{ github.event.inputs.NAME_PREFIX }} -var region=${{ github.event.inputs.AWS_REGION }}  -var worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }} -var worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       working-directory: ./terraform/eks_cluster
       shell: bash 
-      with:
-        args: '-var region=${{ github.event.inputs.AWS_REGION }}-var name_prefix=${{ github.event.inputs.NAME_PREFIX }} -var region=${{ github.event.inputs.AWS_REGION }}  -var worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }} -var worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}'
-
