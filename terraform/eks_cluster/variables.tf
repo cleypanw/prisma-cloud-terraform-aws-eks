@@ -8,7 +8,7 @@ variable "name_prefix" {
   description = "Objects name prefix to use for deployment"
   type        = string
   default     = "cley"
-} 
+}
 
 variable "worker_nodes_desired_size" {
   description = "number of worker nodes in the cluster"

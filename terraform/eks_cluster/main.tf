@@ -17,9 +17,9 @@ resource "random_string" "suffix" {
 }
 
 locals {
-  cluster_name  = "${var.name_prefix}-eks-${random_string.suffix.result}"
-  s3_name       = "${var.name_prefix}-s3"
-  vpc_name      = "${var.name_prefix}-vpc"
+  cluster_name = "${var.name_prefix}-eks-${random_string.suffix.result}"
+  s3_name      = "${var.name_prefix}-s3"
+  vpc_name     = "${var.name_prefix}-vpc"
 }
 
 

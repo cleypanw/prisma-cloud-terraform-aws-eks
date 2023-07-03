@@ -28,10 +28,10 @@ terraform {
 
   required_version = "~> 1.3"
 
-#  backend "s3" {
-#    bucket = local.s3_name
-#    key    = "${local.cluster_name}.tfstate"
-#    region = var.region
-#  }
+  #  backend "s3" {
+  #    bucket = local.s3_name
+  #    key    = "${local.cluster_name}.tfstate"
+  #    region = var.region
+  #  }
 }
 
