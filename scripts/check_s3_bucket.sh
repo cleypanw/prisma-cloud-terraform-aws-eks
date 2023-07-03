@@ -9,6 +9,6 @@ if aws s3api head-bucket --bucket "$bucket_name" 2>/dev/null; then
 else
     echo "The bucket '$bucket_name' does not exist."
     echo "'$bucket_name' Bucket S3 creation in progress..."
-    terraform -chdir=terraform/bucket_s3 init
-    terraform -chdir=terraform/bucket_s3 -var="name_prefix=$1" apply
+    terraform -chdir=../terraform/bucket_s3 init
+    terraform -chdir=../terraform/bucket_s3 -var="name_prefix=$1" apply
 fi

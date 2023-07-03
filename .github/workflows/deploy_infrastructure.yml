@@ -36,14 +36,14 @@ on:
 
 jobs:
   terraform:
-    name: Deploy EKS Cluster
+    name: Deploy AWS infrastructure to host EKS (VPC, EKS, Node Group, S3, etc.)
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout repo
       uses: actions/checkout@v2
 
-    - name: Run Prisma Cloud 
+    - name: Run Security Check - Checkov / Prisma Cloud 
       id: Prisma_Cloud
       uses: bridgecrewio/checkov-action@master 
       env:
@@ -63,7 +63,7 @@ jobs:
         terraform_version: 1.5.2
         terraform_wrapper: false
 
-    - name: S3 Bucket for tfstate - Check if exists or Create
+    - name: Check if exists or Create S3 Bucket for tfstate 
       id: s3
       run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }}
       env:
