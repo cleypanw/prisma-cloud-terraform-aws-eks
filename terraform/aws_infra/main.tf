@@ -10,6 +10,10 @@ provider "aws" {
 
 data "aws_availability_zones" "available" {}
 
+data "aws_s3_bucket" "s3-tfstate" {
+  bucket = local.s3_name
+}
+
 resource "random_string" "suffix" {
   length  = 3
   special = false
