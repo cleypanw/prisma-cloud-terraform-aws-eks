@@ -16,7 +16,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name           = "eks-node-group-1"
+      name           = "${local.cluster_name}-node-group-1"
       instance_types = ["${var.worker_nodes_type}"]
       min_size       = 1
       max_size       = 5
@@ -29,13 +29,18 @@ module "eks" {
     }
 
     #    two = {
-    #      name = "eks-node-group-2"
+    #      name = "${local.cluster_name}-node-group-2"
     #
     #      instance_types = ["t3.medium"]
     #
     #      min_size     = 1
     #      max_size     = 3
     #      desired_size = 2
+    #      metadata_options = {
+    #       http_endpoint          = "enabled"
+    #       http_tokens            = "required"
+    #       instance_metadata_tags = "enabled"
+    #      }
     #    }
   }
 }

@@ -22,11 +22,3 @@ variable "worker_nodes_type" {
   default     = "t3.medium"
 }
 
-# S3 bucket for TF
-#variable "state_bucket"{
-#    default = "s3-cley-tfstate"
-#}
-
-#variable "state_key"{
-#    default = "cley-eks-cluster.tfstate"
-#}

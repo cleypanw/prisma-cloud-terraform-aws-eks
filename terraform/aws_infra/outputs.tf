@@ -17,8 +17,3 @@ output "cluster_name" {
   description = "Kubernetes Cluster Name"
   value       = module.eks.cluster_name
 }
-
-#output "bucket_name" {
-#  description = "S3 Name"
-#  value = resource.aws_s3_bucket.s3-tfstate.bucket
-#}

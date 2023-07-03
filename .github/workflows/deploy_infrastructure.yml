@@ -15,7 +15,7 @@ on:
         required: true
         default: 'https://api2.eu.prismacloud.io'
       NAME_PREFIX:
-        description: 'Prefix name for resources to be created: vpc, eks, etc...'
+        description: 'Prefix name for resources to be created: s3 bucket, vpc, eks, ec2, etc.'
         required: true
         default: 'cley'
       WORKER_NODES_NUMBER:
@@ -62,6 +62,16 @@ jobs:
       with:
         terraform_version: 1.5.2
         terraform_wrapper: false
+
+    - name: S3 Bucket for tfstate - Check if exists or Create
+      id: s3
+      run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      working-directory: ./scripts
+      shell: bash 
 
     - name: Terraform Init
       id: init
