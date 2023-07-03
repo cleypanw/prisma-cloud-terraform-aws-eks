@@ -28,14 +28,10 @@ terraform {
 
   required_version = "~> 1.3"
 
-  data "aws_s3_bucket" "s3-tfstate" {
-    bucket = local.s3_name
-  }
-
-  backend "s3" {
-    bucket = data.aws_s3_bucket.s3-tfstate.bucket
-    key    = "${local.cluster_name}.tfstate"
-    region = var.region
-  }
+#  backend "s3" {
+#    bucket = data.aws_s3_bucket.s3-tfstate.bucket
+#    key    = "${local.cluster_name}.tfstate"
+#    region = var.region
+#  }
 }
 
