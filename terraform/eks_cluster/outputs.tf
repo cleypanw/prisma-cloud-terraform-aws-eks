@@ -18,7 +18,7 @@ output "cluster_name" {
   value       = module.eks.cluster_name
 }
 
-output "bucket_name" {
-  description = "S3 Name"
-  value = resource.aws_s3_bucket.s3-tfstate.bucket
-}
+#output "bucket_name" {
+#  description = "S3 Name"
+#  value = resource.aws_s3_bucket.s3-tfstate.bucket
+#}
