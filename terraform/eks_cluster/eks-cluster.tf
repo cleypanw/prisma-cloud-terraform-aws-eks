@@ -26,7 +26,7 @@ module "eks" {
         http_tokens                 = "required"
         instance_metadata_tags      = "enabled"
       }
-    }
+    
 #    two = {
 #      name = "eks-node-group-2"
 #
