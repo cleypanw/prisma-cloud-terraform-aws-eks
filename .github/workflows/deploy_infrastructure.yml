@@ -15,7 +15,7 @@ on:
         required: true
         default: 'https://api2.eu.prismacloud.io'
       NAME_PREFIX:
-        description: 'Prisma Cloud API URL'
+        description: 'Prefix name for resources to be created: vpc, eks, etc...'
         required: true
         default: 'cley'
       WORKER_NODES_NUMBER:
@@ -86,7 +86,7 @@ jobs:
     - name: Terraform Apply
       id: apply
       run: |
-        terraform apply -var region=${{ github.event.inputs.AWS_REGION }}-var name_prefix=${{ github.event.inputs.NAME_PREFIX }} -var region=${{ github.event.inputs.AWS_REGION }}  -var worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }} -var worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}
+        terraform apply -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -var="worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }}" -var="worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
