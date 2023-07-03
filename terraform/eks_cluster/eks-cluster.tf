@@ -11,6 +11,7 @@ module "eks" {
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
+    }
   }
 
   eks_managed_node_groups = {
@@ -20,10 +21,11 @@ module "eks" {
       min_size     = 1
       max_size     = 5
       desired_size = var.worker_nodes_desired_size
-    }
-    metadata_options = {
-      http_endpoint = "enabled"
-      http_tokens   = "required"
+      metadata_options = {
+        http_endpoint               = "enabled"
+        http_tokens                 = "required"
+        instance_metadata_tags      = "enabled"
+      }
     }
 #    two = {
 #      name = "eks-node-group-2"
