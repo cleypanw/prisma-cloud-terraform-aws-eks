@@ -50,6 +50,12 @@ jobs:
         PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
       with:
         api-key: ${{ secrets.BC_API_KEY }}
+        quiet: true
+        use_enforcement_rules: true
+        framework: terraform
+        output_format: cli
+        directory: .
+        download_external_modules: true 
 
     - name: Terraform Init
       uses: hashicorp/terraform-github-actions/init@v0.4.0
