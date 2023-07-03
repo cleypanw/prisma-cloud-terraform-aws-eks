@@ -8,7 +8,7 @@ variable "name_prefix" {
   description = "Objects name prefix to use for deployment"
   type        = string
   default     = "cley"
-} 
+}
 
 variable "worker_nodes_desired_size" {
   description = "number of worker nodes in the cluster"
@@ -22,11 +22,3 @@ variable "worker_nodes_type" {
   default     = "t3.medium"
 }
 
-# S3 bucket for TF
-#variable "state_bucket"{
-#    default = "s3-cley-tfstate"
-#}
-
-#variable "state_key"{
-#    default = "cley-eks-cluster.tfstate"
-#}

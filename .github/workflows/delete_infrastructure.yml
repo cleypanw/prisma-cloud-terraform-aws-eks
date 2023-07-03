@@ -1,0 +1,42 @@
+name: Deploy Infrastructure
+
+on:
+  # push:
+  #  branches:
+  #    - main
+  workflow_dispatch:
+    inputs:
+      AWS_REGION:
+        description: 'AWS region in which the infrastructure to delete is deployed'
+        required: true
+        default: 'eu-west-3'
+      NAME_PREFIX:
+        description: 'Prefix name for resources to be delete: s3 bucket, vpc, eks, ec2, etc.'
+        required: true
+        default: 'cley'
+
+jobs:
+  terraform:
+    name: Delete AWS infrastructure (VPC, EKS, Node Group, ec2, etc.)
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Setup tool - install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.2
+        terraform_wrapper: false
+
+    - name: Destroy - Terraform Destroy
+      id: init
+      run: terraform destroy -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -auto-approve
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+      working-directory: ./terraform/aws_infra
+      shell: bash 

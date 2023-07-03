@@ -15,11 +15,11 @@ on:
         required: true
         default: 'https://api2.eu.prismacloud.io'
       NAME_PREFIX:
-        description: 'Prisma Cloud API URL'
+        description: 'Prefix name for resources to be created: s3 bucket, vpc, eks, ec2, etc.'
         required: true
         default: 'cley'
       WORKER_NODES_NUMBER:
-        description: 'Number of worker nodes in the eks_cluster'
+        description: 'Number of worker nodes in eks_cluster'
         required: true
         type: choice
         options:
@@ -30,44 +30,83 @@ on:
         - 5
         default: '3'
       WORKER_NODES_TYPE:
-        description: 'Number of worker nodes in the eks_cluster'
+        description: 'Worker nodes type in eks_cluster'
         required: true
         default: 't3.medium'     
 
 jobs:
-  tf_fmt:
-    name: Deploy EKS Cluster
+  terraform:
+    name: Deploy AWS infrastructure to host EKS (VPC, EKS, Node Group, S3, etc.)
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout repo
       uses: actions/checkout@v2
 
-    - name: Run Prisma Cloud 
+    - name: Run Security Check - Checkov / Prisma Cloud 
       id: Prisma_Cloud
       uses: bridgecrewio/checkov-action@master 
       env:
         PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
       with:
         api-key: ${{ secrets.BC_API_KEY }}
+        quiet: true
+        use_enforcement_rules: true
+        framework: terraform
+        output_format: cli
+        directory: .
+        download_external_modules: false 
 
-    - name: Terraform Init
-      uses: hashicorp/terraform-github-actions/init@v0.4.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TF_ACTION_WORKING_DIR: 'terraform/eks_cluster'
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-    - name: Terraform Validate
-      uses: hashicorp/terraform-github-actions/validate@v0.3.7
-
-    - name: Terraform Apply
-      uses: hashicorp/terraform-github-actions/apply@v0.4.0
+    - name: Setup tool - install Terraform
+      uses: hashicorp/setup-terraform@v2
       with:
-        args: '-var region=${{ github.event.inputs.AWS_REGION }}-var name_prefix=${{ github.event.inputs.NAME_PREFIX }} -var region=${{ github.event.inputs.AWS_REGION }}  -var worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }} -var worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}'
+        terraform_version: 1.5.2
+        terraform_wrapper: false
+    
+    - name: Setup tool - install AWS cli
+      uses: unfor19/install-aws-cli-action@v1
+
+    - name: Prerequisite - Check if exists or Create S3 Bucket for tfstate 
+      id: s3
+      run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TF_ACTION_WORKING_DIR: 'terraform/eks_cluster'
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+      working-directory: ./scripts
+      shell: bash 
+
+    - name: Init - Terraform Init
+      id: init
+      run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" 
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+      working-directory: ./terraform/aws_infra
+      shell: bash 
+
+    - name: Validate - Terraform Validate
+      id: validate
+      run: terraform validate
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+      working-directory: ./terraform/aws_infra
+      shell: bash 
+
+    - name: Install & Deploy infra - Terraform Apply
+      id: apply
+      run: |
+        terraform apply -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -var="worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }}" -var="worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}" -auto-approve
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+      working-directory: ./terraform/aws_infra
+      shell: bash 

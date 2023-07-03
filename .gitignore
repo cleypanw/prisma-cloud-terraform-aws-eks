@@ -1,3 +1,3 @@
 # exclude terraform files
-terraform/eks_cluster/terraform.tfstate*
-terraform/eks_cluster/.terraform
+terraform/*/terraform.tfstate*
+terraform/*/.terraform*
