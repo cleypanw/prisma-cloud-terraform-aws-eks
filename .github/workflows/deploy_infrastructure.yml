@@ -36,7 +36,7 @@ on:
 
 jobs:
   tf_fmt:
-    name: Deploy Site
+    name: Deploy EKS Cluster
     runs-on: ubuntu-latest
     steps:
 
@@ -44,7 +44,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run Prisma Cloud 
-      id: Prisma Cloud
+      id: Prisma_Cloud
       uses: bridgecrewio/checkov-action@master 
       env:
         PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
