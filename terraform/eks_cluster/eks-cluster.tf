@@ -7,7 +7,7 @@ module "eks" {
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
-  cluster_endpoint_public_access = true
+  cluster_endpoint_public_access = false
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
@@ -19,6 +19,10 @@ module "eks" {
       name = "eks-node-group-1"
 
       instance_types = ["${var.worker_nodes_type}"]
+      metadata_options = {
+        http_endpoint = "enabled"
+        http_tokens   = "required"
+      }
       min_size     = 1
       max_size     = 5
       desired_size = var.worker_nodes_desired_size
