@@ -55,7 +55,7 @@ jobs:
         framework: terraform
         output_format: cli
         directory: .
-        download_external_modules: true 
+        download_external_modules: false 
 
     - name: Terraform Init
       uses: hashicorp/terraform-github-actions/init@v0.4.0
