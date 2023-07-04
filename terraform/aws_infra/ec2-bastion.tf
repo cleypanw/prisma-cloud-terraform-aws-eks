@@ -29,9 +29,8 @@ resource "aws_instance" "ec2instance" {
     command = <<EOF
 sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl 
 sudo mv kubectl /usr/local/bin/kubectl
-chmod 0755 /usr/local/bin/kubectl
-sudo apt-get -y install awscli
-# Do some kind of JSON processing with ./jq
+sudo chmod 0755 /usr/local/bin/kubectl
+sudo snap install aws-cli --classic
 EOF
   }
 

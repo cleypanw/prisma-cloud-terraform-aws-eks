@@ -22,4 +22,8 @@ resource "aws_security_group" "ec2-bastion" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = local.sg_name
+  }
 }

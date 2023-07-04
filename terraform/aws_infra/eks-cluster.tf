@@ -10,7 +10,7 @@ module "eks" {
   cluster_endpoint_private_access       = true
   cluster_endpoint_public_access        = false
   # Add ec2-bastion security group to allow to connect to the cluster control plane
-  cluster_additional_security_group_ids = ["${aws_security_group.ec2-bastion.id}"]
+  cluster_additional_security_group_ids = [aws_security_group.ec2-bastion.id]
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
