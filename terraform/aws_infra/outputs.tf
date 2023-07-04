@@ -29,3 +29,7 @@ output "ec2instance_dns" {
 output "ecr_registry_url" {
   value = aws_ecr_repository.ecr.repository_url
 }
+
+output "cluster_security_group_id" {
+  value = module.eks.cluster_security_group_id
+}

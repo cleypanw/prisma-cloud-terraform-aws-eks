@@ -46,7 +46,4 @@ module "eks" {
     #      }
     #    }
   }
-#  depends_on = [
-#    aws_security_group.ec2-bastion
-#  ]
 }
