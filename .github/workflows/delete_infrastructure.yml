@@ -30,9 +30,20 @@ jobs:
         terraform_version: 1.5.2
         terraform_wrapper: false
 
-    - name: Destroy - Terraform Destroy
+    - name: Init - Terraform Init
       id: init
-      run: terraform apply -destroy -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -auto-approve
+      run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" 
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+      working-directory: ./terraform/aws_infra
+      shell: bash 
+
+    - name: Destroy - Terraform Destroy
+      id: destroy
+      run: terraform apply -destroy -auto-approve
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
