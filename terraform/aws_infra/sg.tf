@@ -26,9 +26,6 @@ resource "aws_security_group" "ec2-bastion" {
   tags = {
     Name = local.sg_name
   }
-  depends_on = [
-    module.eks
-  ]
 }
 
 ## Add EC2 security Group to EKS cluster security Group
