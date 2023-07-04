@@ -44,6 +44,7 @@ locals {
   ec2_bastion_name  = "${var.name_prefix}-ec2-bastion-${random_string.suffix.result}"
   sshkey_name       = "${var.name_prefix}-sshkey-${random_string.suffix.result}"
   sg_name           = "${var.name_prefix}-sg-${random_string.suffix.result}"
+  ecr_name          = "${var.name_prefix}-ecr-${random_string.suffix.result}"
 }
 
 
