@@ -29,11 +29,12 @@ resource "aws_security_group" "ec2-bastion" {
 }
 
 ## Add EC2 security Group to EKS cluster security Group
-resource "aws_security_group_rule" "example" {
+resource "aws_security_group_rule" "ec2_to_eks" {
   type                      = "ingress"
   from_port                 = 443
   to_port                   = 443
   protocol                  = "tcp"
   source_security_group_id  = aws_security_group.ec2-bastion.id
   security_group_id         = module.eks.cluster_security_group_id
+  description               = "Add ec2-bastion security group to allow to connect to EKS cluster control plane" 
 }
