@@ -17,3 +17,15 @@ output "cluster_name" {
   description = "Kubernetes Cluster Name"
   value       = module.eks.cluster_name
 }
+
+output "ec2instance_ip" {
+  value = aws_instance.ec2instance.public_ip
+}
+
+output "ec2instance_dns" {
+  value = aws_instance.ec2instance.public_dns
+}
+
+output "ecr_registry_url" {
+  value = aws_ecr_repository.ecr.repository_url
+}
