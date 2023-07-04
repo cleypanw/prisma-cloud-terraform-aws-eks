@@ -10,7 +10,6 @@ resource "aws_instance" "ec2instance" {
 
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.medium"
-
   subnet_id              = module.vpc.public_subnets[0]
   private_ip             = "10.0.4.10"
   vpc_security_group_ids = ["${aws_security_group.ec2-bastion.id}"]
@@ -26,7 +25,16 @@ resource "aws_instance" "ec2instance" {
     volume_type           = "gp2"
     encrypted             = true
   }
-
+  provisioner "local-exec" {
+    command = <<EOF
+sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl 
+sudo mv kubectl /usr/local/bin/kubectl
+chmod 0755 /usr/local/bin/kubectl
+sudo apt-get -y install awscli
+# Do some kind of JSON processing with ./jq
+EOF
+  }
+}
   # https://docs.bridgecrew.io/docs/bc_aws_general_31
   metadata_options {
     http_endpoint = "enabled"
