@@ -25,14 +25,6 @@ resource "aws_instance" "ec2instance" {
     volume_type           = "gp2"
     encrypted             = true
   }
-  provisioner "local-exec" {
-    command = <<EOF
-sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl 
-sudo mv kubectl /usr/local/bin/kubectl
-sudo chmod 0755 /usr/local/bin/kubectl
-sudo snap install aws-cli --classic
-EOF
-  }
 
   # https://docs.bridgecrew.io/docs/bc_aws_general_31
   metadata_options {
