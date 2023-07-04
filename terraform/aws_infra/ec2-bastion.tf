@@ -34,7 +34,7 @@ sudo apt-get -y install awscli
 # Do some kind of JSON processing with ./jq
 EOF
   }
-}
+
   # https://docs.bridgecrew.io/docs/bc_aws_general_31
   metadata_options {
     http_endpoint = "enabled"
