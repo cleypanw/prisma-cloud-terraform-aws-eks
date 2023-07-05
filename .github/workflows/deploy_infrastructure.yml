@@ -70,9 +70,6 @@ jobs:
     - name: Setup tool - install AWS cli
       uses: unfor19/install-aws-cli-action@v1
     
-    - name: Setup tool - install Ansible
-      uses: dawidd6/action-ansible-playbook@v2
-
     - name: Prerequisite - Check if exists or Create S3 Bucket for tfstate 
       id: s3
       run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }}
