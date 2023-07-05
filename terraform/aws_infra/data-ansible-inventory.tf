@@ -1,5 +1,5 @@
 data "template_file" "ansible_inventory" {
-  template  = "${file("template/data-ansible-inventory.tpl")}"
+  template  = "${file("${path.module}/template/ansible-inventory.tpl")}"
   vars      = {
     ec2instance_public_ip = aws_instance.ec2instance.public_ip
   }
