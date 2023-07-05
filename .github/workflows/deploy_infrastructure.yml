@@ -17,7 +17,7 @@ on:
       NAME_PREFIX:
         description: 'Prefix name for resources to be created: s3 bucket, vpc, eks, ec2, etc.'
         required: true
-        default: 'cley'
+        default: 'eks'
       WORKER_NODES_NUMBER:
         description: 'Number of worker nodes in eks_cluster'
         required: true
@@ -69,7 +69,7 @@ jobs:
     
     - name: Setup tool - install AWS cli
       uses: unfor19/install-aws-cli-action@v1
-
+    
     - name: Prerequisite - Check if exists or Create S3 Bucket for tfstate 
       id: s3
       run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }}
@@ -103,7 +103,7 @@ jobs:
       working-directory: ./terraform/aws_infra
       shell: bash 
 
-    - name: Install & Deploy infra - Terraform Apply
+    - name: Deploy infra - Terraform Apply
       id: apply
       run: |
         terraform apply -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -var="worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }}" -var="worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}" -var="public_ssh_key=${{ github.event.inputs.PUBLIC_SSH_KEY }}" -auto-approve
@@ -114,3 +114,29 @@ jobs:
         AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
       working-directory: ./terraform/aws_infra
       shell: bash 
+
+    - name: Download ansible inventory created during build phase
+      id: download_inventory
+      run: |
+        aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/ansible_inventory.ini .
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+      working-directory: ./ansible
+      shell: bash 
+    
+    - name: Install Tools on ec2-bastion - Run Ansible playbook
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        # Required, playbook filepath
+        playbook: install-tools.yml
+        # Directory where playbooks live
+        directory: ./ansible     
+        # SSH private key to connect to host
+        key: ${{secrets.SSH_PRIVATE_KEY}}
+        # Optional, additional flags to pass to ansible-playbook
+        options: |
+          --inventory ansible_inventory.ini
+          --extra-vars target="ec2-bastion-public"
