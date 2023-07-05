@@ -9,6 +9,5 @@ data "template_file" "ansible_inventory" {
 resource "aws_s3_object" "ansible_inventory" {
   bucket  = local.s3_name
   key     = "ansible_inventory.ini"
-  acl     = "public-read"  # or can be "public-read"
   content = data.template_file.ansible_inventory.rendered
 }
