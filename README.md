@@ -4,7 +4,7 @@
 
 This repository provides a lab to show deployment of an EKS cluster and its associated infrastructure  (VPC, SG, S3, etc.) in an automated way with GitHub Action and in an secure way with Prisma Cloud.
 
-It is possible to use this code to quickly deploy a native cloud environment (K8s) for demonstration purposes.
+It is possible to use this code to quickly deploy a cloud native environment (K8s) for demonstration purposes.
 
 
 
@@ -50,9 +50,7 @@ Open Settings > Security > Secrets and variables > Actions
 
 ![image-20230705162620331](images/image-20230705162620331.png)
 
-### Trigger GitHub Action Pipeline
-
-#### Deploy Infrastructure Workflow 
+### Deploy Infrastructure Workflow 
 
 1) Open Actions > All Workflows > Deploy Infrastructure 
 
@@ -170,7 +168,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
 
 
-#### Delete Infrastructure Workflow 
+### Delete Infrastructure Workflow 
 
 1. Open Actions > All Workflows > Delete Infrastructure 
 
