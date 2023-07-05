@@ -14,5 +14,5 @@ resource "aws_s3_bucket_public_access_block" "s3-tfstate" {
 resource "aws_s3_bucket_acl" "s3-tfstate" {
   depends_on = [aws_s3_bucket_ownership_controls.s3-tfstate]
   bucket = aws_s3_bucket.s3-tfstate.id
-  acl    = "public-read"
+  acl    = "private"
 }
