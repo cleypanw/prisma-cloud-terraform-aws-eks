@@ -17,7 +17,7 @@ on:
       NAME_PREFIX:
         description: 'Prefix name for resources to be created: s3 bucket, vpc, eks, ec2, etc.'
         required: true
-        default: 'cley'
+        default: 'eks'
       WORKER_NODES_NUMBER:
         description: 'Number of worker nodes in eks_cluster'
         required: true
