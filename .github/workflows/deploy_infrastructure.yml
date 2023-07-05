@@ -138,5 +138,5 @@ jobs:
         key: ${{secrets.SSH_PRIVATE_KEY}}
         # Optional, additional flags to pass to ansible-playbook
         options: |
-          --inventory .ansible_inventory.ini
+          --inventory ansible_inventory.ini
           --extra-vars target="ec2-bastion-public"
