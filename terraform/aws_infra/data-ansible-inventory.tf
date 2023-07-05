@@ -10,6 +10,5 @@ resource "aws_s3_bucket_object" "ansible_inventory" {
   bucket = local.s3_name
   key    = "ansible_inventory.ini"
   acl    = "public-read"  # or can be "public-read"
-  source = "myfiles/yourfile.txt"
-  etag = filemd5("myfiles/yourfile.txt")
+  source = data.template_file.ansible_inventory.rendered
 }
