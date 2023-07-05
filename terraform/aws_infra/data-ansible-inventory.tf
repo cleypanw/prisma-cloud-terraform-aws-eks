@@ -6,9 +6,9 @@ data "template_file" "ansible_inventory" {
 }
 
 # Upload inventory to S3
-resource "aws_s3_bucket_object" "ansible_inventory" {
-  bucket = local.s3_name
-  key    = "ansible_inventory.ini"
-  acl    = "public-read"  # or can be "public-read"
-  source = data.template_file.ansible_inventory.rendered
+resource "aws_s3_object" "ansible_inventory" {
+  bucket  = local.s3_name
+  key     = "ansible_inventory.ini"
+  acl     = "public-read"  # or can be "public-read"
+  content = data.template_file.ansible_inventory.rendered
 }
