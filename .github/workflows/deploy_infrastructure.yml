@@ -72,7 +72,7 @@ jobs:
     
     - name: Prerequisite - Check if exists or Create S3 Bucket for tfstate 
       id: s3
-      run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }}
+      run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }} ${{ github.event.inputs.AWS_REGION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
