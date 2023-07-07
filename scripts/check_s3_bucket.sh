@@ -11,5 +11,5 @@ else
     echo "The bucket '$bucket_name' does not exist."
     echo "'$bucket_name' Bucket S3 creation in progress..."
     terraform -chdir="../terraform/bucket_s3" init
-    terraform -chdir="../terraform/bucket_s3" apply -var="name_prefix=$1" -var="region=$2"-region -auto-approve
+    terraform -chdir="../terraform/bucket_s3" apply -var="name_prefix=$1" -var="region=$2" -auto-approve
 fi
