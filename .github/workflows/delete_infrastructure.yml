@@ -43,7 +43,7 @@ jobs:
 
     - name: Destroy - Terraform Destroy
       id: destroy
-      run: terraform apply -destroy -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -auto-approve
+      run: terraform apply -destroy -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -auto-approve
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
