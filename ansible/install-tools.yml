@@ -4,6 +4,9 @@
     ansible_user: ubuntu
   become: true
   tasks:
+    - name: Install jq
+      ansible.builtin.command: sudo apt install jq -y
+
     - name: Install aws-cli
       ansible.builtin.command: sudo snap install aws-cli --classic
   
@@ -15,3 +18,7 @@
     
     - name: chmod kubectl
       ansible.builtin.command: sudo chmod 0755 /usr/local/bin/kubectl
+
+    - name: Get PC Token
+      ansible.builtin.command: sudo export pc_token=$(curl -s --location {{ pc_api_url }}/login/ --header 'Content-Type: application/json' --data '{"username":"'{{ pc_aki_key }}'","password":"'{{ pc_secret_key }}'"}' |jq -r '.token')
+

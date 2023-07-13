@@ -53,7 +53,7 @@ jobs:
       env:
         PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
       with:
-        api-key: ${{ secrets.BC_API_KEY }}
+        api-key: ${{ secrets.PC_API_KEY }}::${{ secrets.PC_SECRET_KEY }}
         quiet: true
         use_enforcement_rules: true
         framework: terraform
@@ -140,3 +140,6 @@ jobs:
         options: |
           --inventory ansible_inventory.ini
           --extra-vars target="ec2-bastion-public"
+          --extra-vars pc_api_url=${{ github.event.inputs.PRISMA_API_URL }}
+          --extra-vars pc_aki_key=${{ secrets.PC_API_KEY }}
+          --extra-vars pc_secret_key=${{ secrets.PC_SECRET_KEY }}
