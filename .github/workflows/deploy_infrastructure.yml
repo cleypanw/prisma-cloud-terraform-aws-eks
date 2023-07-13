@@ -53,7 +53,7 @@ jobs:
       env:
         PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
       with:
-        api-key: ${{ secrets.PC_API_KEY }}::${{ secrets.PC_SECRET_KEY }}
+        api-key: ${{ secrets.PC_ACCESS_KEY }}::${{ secrets.PC_SECRET_KEY }}
         quiet: true
         use_enforcement_rules: true
         framework: terraform
