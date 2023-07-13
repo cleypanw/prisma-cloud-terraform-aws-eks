@@ -141,5 +141,5 @@ jobs:
           --inventory ansible_inventory.ini
           --extra-vars target="ec2-bastion-public"
           --extra-vars pc_api_url=${{ github.event.inputs.PRISMA_API_URL }}
-          --extra-vars pc_aki_key=${{ secrets.PC_API_KEY }}
+          --extra-vars pc_access_key=${{ secrets.PC_ACCESS_KEY }}
           --extra-vars pc_secret_key=${{ secrets.PC_SECRET_KEY }}
