@@ -82,17 +82,18 @@
           password: "{{ pc_secret_key }}"
       register: pc_login
 
-    - name: Print returned json pc login output
-      debug:
-        var: pc_login.json
-    
-    - name: Print pc_token
-      debug:
-        var: pc_login.json.token
-
-    - name: Print pc_prismaId
-      debug:
-        var: pc_login.json.customerNames[0].prismaId
+## Debug
+##    - name: Print returned json pc login output
+##      debug:
+##        var: pc_login.json
+##    
+##    - name: Print pc_token
+##      debug:
+##        var: pc_login.json.token
+##
+##    - name: Print pc_prismaId
+##      debug:
+##        var: pc_login.json.customerNames[0].prismaId
 
     - name: Get Twistlock URL
       ansible.builtin.uri:
@@ -104,21 +105,23 @@
           x-redlock-auth: "{{ pc_login.json.token }}"
       register: pc_twistlock_url
 
-    - name: Print returned json Get Twistlock URL output
-      debug:
-        var: pc_twistlock_url.json
-
-    - name: Print twistlock_end_point_url
-      debug:
-        var: pc_twistlock_url.json.twistlock_end_point_url
+## Debug
+##    - name: Print returned json Get Twistlock URL output
+##      debug:
+##        var: pc_twistlock_url.json
+##
+##    - name: Print twistlock_end_point_url
+##      debug:
+##        var: pc_twistlock_url.json.twistlock_end_point_url
 
     - name: Extract Console URL from Twistlock URL
       shell: >
         echo "{{ pc_twistlock_url.json.twistlock_end_point_url }}" | awk -F '/' '{print$3}'
       register: pc_console_url
 
-    - debug: 
-        msg: "{{ pc_console_url.stdout }}"
+## Debug
+##    - debug: 
+##        msg: "{{ pc_console_url.stdout }}"
 
     - name: Copy download defender daemonset script
       ansible.builtin.copy:
@@ -134,12 +137,4 @@
 
     - name: Deploy Daemonset on the cluster
       command: kubectl apply -f daemonset.yaml
-#    - name: Test - Print pc_token
-#      ansible.builtin.debug:
-#        var: pc_token
-
-
-#    - name: Get PC Token
-#      ansible.builtin.command: sudo curl -s --location "{{ pc_api_url }}"/login/ --header 'Content-Type: application/json' --data '{"username":"'"{{ pc_access_key }}"'","password":"'"{{ pc_secret_key }}"'"}' |jq -r '.token'
-
 
