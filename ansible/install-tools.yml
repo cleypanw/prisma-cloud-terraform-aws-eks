@@ -62,7 +62,7 @@
       ansible.builtin.command: 
         cmd: aws eks update-kubeconfig --name "{{ EKS_CLUSTER_NAME }}"
 
-    - name: Create a k8s namespace
+    - name: Create twistlock k8s namespace
       kubernetes.core.k8s:
         name: twistlock
         api_version: v1
