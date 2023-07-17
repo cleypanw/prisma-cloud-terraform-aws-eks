@@ -1,9 +1,26 @@
-- name: "Install and configure awscli and kubectl"
+- name: "Install and configure awscli, kubectl, create ns and deploy defender"
   hosts: "{{ target | default('nothing') }}"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ AWS_ACCESS_KEY_ID }}"
+    AWS_SECRET_ACCESS_KEY: "{{ AWS_SECRET_ACCESS_KEY }}"
+    AWS_DEFAULT_REGION: "{{ AWS_DEFAULT_REGION }}"
+    pc_api_url: "{{ pc_api_url }}"
+    pc_access_key: "{{ pc_access_key }}"
+    pc_secret_key: "{{ pc_secret_key }}"
+    EKS_CLUSTER_NAME: "{{ EKS_CLUSTER_NAME }}"
   vars:
     ansible_user: ubuntu
   become: true
   tasks:
+    - name: Update Repo
+      ansible.builtin.command: sudo apt-get update
+
+    - name: Install python3-pip
+      ansible.builtin.command: sudo apt install python3-pip -y
+
+    - name: Install jq
+      ansible.builtin.command: sudo snap install jq 
+
     - name: Install aws-cli
       ansible.builtin.command: sudo snap install aws-cli --classic
   
@@ -15,3 +32,114 @@
     
     - name: chmod kubectl
       ansible.builtin.command: sudo chmod 0755 /usr/local/bin/kubectl
+
+    - name: install pre-requisites pip3, kub, oc
+      pip:
+        name:
+          - openshift
+          - pyyaml
+          - kubernetes 
+
+    - name: Create AWS directory if it does not exist
+      ansible.builtin.file:
+        path: .aws
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Set AWS Creds
+      template:
+        src: templates/credentials.j2
+        dest: .aws/credentials
+
+    - name: Set AWS Config
+      template:
+        src: templates/config.j2
+        dest: .aws/config
+
+    - name: Set Kubeconfig for cluster 
+      ansible.builtin.command: 
+        cmd: aws eks update-kubeconfig --name "{{ EKS_CLUSTER_NAME }}"
+
+    - name: Create a k8s namespace
+      kubernetes.core.k8s:
+        name: twistlock
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: Prisma Cloud Login URI
+      ansible.builtin.uri:
+        url: "{{ pc_api_url }}/login/"
+        method: POST
+        body_format: json
+        return_content: true
+        headers:
+          Content-Type: application/json
+        body:
+          username: "{{ pc_access_key }}"
+          password: "{{ pc_secret_key }}"
+      register: pc_login
+
+    - name: Print returned json pc login output
+      debug:
+        var: pc_login.json
+    
+    - name: Print pc_token
+      debug:
+        var: pc_login.json.token
+
+    - name: Print pc_prismaId
+      debug:
+        var: pc_login.json.customerNames[0].prismaId
+
+    - name: Get Twistlock URL
+      ansible.builtin.uri:
+        url: "{{ pc_api_url }}/api/v1/tenant/{{ pc_login.json.customerNames[0].prismaId }}/license_details"
+        method: GET
+        body_format: json
+        return_content: true
+        headers:
+          x-redlock-auth: "{{ pc_login.json.token }}"
+      register: pc_twistlock_url
+
+    - name: Print returned json Get Twistlock URL output
+      debug:
+        var: pc_twistlock_url.json
+
+    - name: Print twistlock_end_point_url
+      debug:
+        var: pc_twistlock_url.json.twistlock_end_point_url
+
+    - name: Extract Console URL from Twistlock URL
+      shell: >
+        echo "{{ pc_twistlock_url.json.twistlock_end_point_url }}" | awk -F '/' '{print$3}'
+      register: pc_console_url
+
+    - debug: 
+        msg: "{{ pc_console_url.stdout }}"
+
+    - name: Copy download defender daemonset script
+      ansible.builtin.copy:
+        src: scripts/download_daemonset.sh
+        dest: download_daemonset.sh
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Download and generate daemonset
+      command: sh download_daemonset.sh "{{ pc_twistlock_url.json.twistlock_end_point_url }}" "{{ pc_login.json.token }}" "{{ pc_console_url.stdout }}"
+
+
+    - name: Deploy Daemonset on the cluster
+      command: kubectl apply -f daemonset.yaml
+#    - name: Test - Print pc_token
+#      ansible.builtin.debug:
+#        var: pc_token
+
+
+#    - name: Get PC Token
+#      ansible.builtin.command: sudo curl -s --location "{{ pc_api_url }}"/login/ --header 'Content-Type: application/json' --data '{"username":"'"{{ pc_access_key }}"'","password":"'"{{ pc_secret_key }}"'"}' |jq -r '.token'
+
+
