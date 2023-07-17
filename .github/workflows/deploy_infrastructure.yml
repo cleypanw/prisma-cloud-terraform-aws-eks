@@ -119,17 +119,6 @@ jobs:
       id: tf_output 
       run: |
         echo "EKS_CLUSTER_NAME=$(terraform output cluster_name)" >> $GITHUB_ENV
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./terraform/aws_infra
-      shell: bash 
-
-    - name: Test variable output cluster
-      id: test 
-      run: |
         echo $EKS_CLUSTER_NAME
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -167,3 +156,7 @@ jobs:
           --extra-vars pc_api_url=${{ github.event.inputs.PRISMA_API_URL }}
           --extra-vars pc_access_key=${{ secrets.PC_ACCESS_KEY }}
           --extra-vars pc_secret_key=${{ secrets.PC_SECRET_KEY }}
+          --extra-vars AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          --extra-vars AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          --extra-vars AWS_DEFAULT_REGION=${{ github.event.inputs.AWS_REGION }}
+          --extra-vars EKS_CLUSTER_NAME=${{ env.EKS_CLUSTER_NAME }}
