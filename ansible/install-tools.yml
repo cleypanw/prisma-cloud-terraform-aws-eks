@@ -20,5 +20,5 @@
       ansible.builtin.command: sudo chmod 0755 /usr/local/bin/kubectl
 
     - name: Get PC Token
-      ansible.builtin.command: sudo export pc_token=$(curl -s --location {{ pc_api_url }}/login/ --header 'Content-Type: application/json' --data '{"username":"'{{ pc_access_key }}'","password":"'{{ pc_secret_key }}'"}' |jq -r '.token')
+      ansible.builtin.command: sudo export pc_token=$(curl -s --location "{{ pc_api_url }}"/login/ --header 'Content-Type: application/json' --data '{"username":"'"{{ pc_access_key }}"'","password":"'"{{ pc_secret_key }}"'"}' |jq -r '.token')
 
