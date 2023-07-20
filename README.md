@@ -99,7 +99,7 @@ Open **Settings > Security > Secrets and variables > Actions**
 
 
 
-🎉 **Congratulations your AWS Environment is now deployed, and your EKS cluster is discovered on Prisma Cloud ** 🎉
+**🎉 Congratulations your AWS Environment is now deployed, and your EKS cluster is discovered on Prisma Cloud  🎉**
 
 
 
