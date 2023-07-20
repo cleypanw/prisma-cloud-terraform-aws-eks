@@ -10,11 +10,13 @@ It is possible to use this code to quickly deploy a cloud native environment (K8
 
 ### High Level Diagram
 
-![image-20230705180824939](images/image-20230705180824939.png)
+![hld](images/hld.png)
+
+
 
 ### Sequence Diagram
 
-![image-20230705151046376](images/image-20230705151046376.png)
+![EKS_full_deployment](images/EKS_full_deployment.png)
 
 
 
@@ -38,27 +40,30 @@ It is possible to use this code to quickly deploy a cloud native environment (K8
 
 #### Configure GitHub Action Secrets
 
-Open Settings > Security > Secrets and variables > Actions 
+Open **Settings > Security > Secrets and variables > Actions** 
 
 - <u>**Secrets**</u>
   - **AWS_ACCESS_KEY_ID** 
   - **AWS_SECRET_ACCESS_KEY**
-  - **BC_API_KEY**
-  - **SSH_PRIVATE_KEY** # Private key yes, will be used by ansible to connect to bastion instance to install tools
+  - **PC_ACCESS_KEY** (Prisma Cloud Access Key)
+  - **PC_SECRET_KEY** (Prisma Cloud Secret Key)
+  - **SSH_PRIVATE_KEY** (Private key yes, will be used by ansible to connect to bastion instance to install tools)
 
 
 
-![image-20230705162620331](images/image-20230705162620331.png)
+![Secrets_GA](images/Secrets_GA.png)
 
 ### Deploy Infrastructure Workflow 
 
-1) Open Actions > All Workflows > Deploy Infrastructure 
+1) Open **Actions > All Workflows > Deploy Infrastructure** 
 
-![image-20230705162848610](images/image-20230705162848610.png)
+![actions](images/actions.png)
+
+
 
 2) Click on `Run workflow` , and **set your configuration**
 
-   ![image-20230705171503809](images/image-20230705171503809.png)
+   ![deploy_infra](images/deploy_infra.png)
 
 - AWS region in which to deploy the infrastructure (Mandatory) : **default = eu-west-3**
 
@@ -80,23 +85,49 @@ Open Settings > Security > Secrets and variables > Actions
 
 4. You can monitor the deployment of all stages 
 
-   ![image-20230705172430122](images/image-20230705172430122.png)
+   ![github_action](images/github_action.png)
 
-*NB: click on the stage to have details* ie ansible stage below ![image-20230705181321610](images/image-20230705181321610.png)
+
+
+*NB: click on the stage to have details* ie ansible stage below ![ansible](images/ansible.png)
 
 
 
 5. Retrieve the terraform outputs to connect to the instance by clicking on the`Deploy infra - Terraform Apply` job and scrolling to the bottom of this stage.
 
-![image-20230705172811409](images/image-20230705172811409.png)
+![tf-outputs](images/tf-outputs.png)
 
 
 
-🎉 **Congratulations your AWS Environment is now deployed.** 🎉
+**🎉 Congratulations your AWS Environment is now deployed, and your EKS cluster is discovered on Prisma Cloud  🎉**
 
 
 
-#### Connect to your EKS
+*NB : deployment time is about 15 min*
+
+
+
+#### Check the cluster on Prisma Cloud
+
+**Defender is deployed during deployment on the cluster**, check if the cluster appears well in the Radar view of Prisma Cloud.
+
+1. Connect on Prisma Cloud 
+
+2. Go to **Compute / Radars / Containers**
+
+   ![prisma-radars-containers](images/prisma-radars-containers.png)
+
+3. Click on your cluster
+
+   ![prisma-radars-containers-defender](images/prisma-radars-containers-defender.png)
+
+4. Check if Defender is connected, go to **Compute / Manage / Defenders**
+
+![prisma-defender](images/prisma-defender.png)
+
+
+
+#### Connect to your EKS and deploy application
 
 <u>EKS **public** API server endpoint is **disabled**</u>, only <u>EKS **private** API server endpoint is **enabled**</u> 
 
@@ -114,7 +145,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
 2. Configure your AWS account (example you can use aws configure cli command)
 
-![image-20230705181730228](images/image-20230705181730228.png)
+![aws-configure](images/aws-configure.png)
 
 
 
@@ -126,7 +157,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
    
 
-   ![image-20230705181951263](images/image-20230705181951263.png)
+   ![aws-eks-list](images/aws-eks-list.png)
 
 
 
@@ -138,13 +169,13 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
    *Example*:
 
-   ![image-20230705182221036](images/image-20230705182221036.png)
+   ![aws-eks-update](images/aws-eks-update.png)
 
 
 
 5. You can now manage your cluster and deploy applications (with kubectl by example)
 
-   ![image-20230705182438647](images/image-20230705182438647.png)
+   ![kubectl-cluster-info](images/kubectl-cluster-info.png)
 
 6. Optional - Test - deploy application
 
@@ -162,7 +193,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
    
 
-![image-20230705183134935](images/image-20230705183134935.png)
+![chrisley-weather-app](images/chrisley-weather-app.png)
 
 🎉 **Congratulations your EKS Cluster is fully functionnal.** 🎉
 
@@ -178,7 +209,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
 2. Click on `Run workflow` , and **fill in the fields **
 
-![image-20230705192006825](images/image-20230705192006825.png)
+![delete_infra](images/delete_infra.png)
 
 - AWS region in which the infrastructure to delete is deployed : **default = eu-west-3** (the region where is deployed your AWS infra)
 - Prefix name for resources to be delete: s3 bucket, vpc, eks, ec2, etc. : **default = eks** (prefix set during build stage) 
@@ -187,7 +218,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
 3. Click  `Run workflow`, and delete will start
 
-![image-20230705192214501](images/image-20230705192214501.png)
+![delete_infra](images/delete_infra.png)
 
 
 
@@ -205,21 +236,21 @@ Throughout the deployment, Prisma was involved in the control of Policies from t
 
 ### IDE integration (without open Prisma Cloud Console)
 
-![image-20230705183756561](images/image-20230705183756561.png)
+![checkov-vscode](images/checkov-vscode.png)
 
 
 
 ### VSC integration (during PR)
 
-![image-20230705184322045](images/image-20230705184322045.png)
+![prisma-vcs](images/prisma-vcs.png)
 
 
 
-![image-20230705191640353](images/image-20230705191640353.png)
+![prisma-vcs2](images/prisma-vcs2.png)
 
 ### CICD integration (Build stage)
 
-![image-20230705185525396](images/image-20230705185525396.png)
+![prisma-cicd](images/prisma-cicd.png)
 
 
 
@@ -227,23 +258,23 @@ Throughout the deployment, Prisma was involved in the control of Policies from t
 
 #### VCS Project view
 
-![image-20230705185903664](images/image-20230705185903664.png)
+![prisma-vsc-view](images/prisma-vsc-view.png)
 
 #### CICD Run result
 
-![image-20230705185729800](images/image-20230705185729800.png)
+![prisma-cicd-view](images/prisma-cicd-view.png)
 
 
 
 #### Code Security Dashboard
 
-![image-20230705190525011](images/image-20230705190525011.png)
+![prisma-codesec](images/prisma-codesec.png)
 
 
 
 #### Supply Chain Graph
 
-![image-20230705190832431](images/image-20230705190832431.png)
+![prisma-supply-chain](images/prisma-supply-chain.png)
 
 
 
@@ -251,4 +282,4 @@ Throughout the deployment, Prisma was involved in the control of Policies from t
 
 *NB: Possibility of blocking the PR without being able to merge it or Build deployment,  depends on the security code configuration enforcement rules in Prisma Cloud*
 
-![image-20230705184620857](images/image-20230705184620857.png)
+![prisma-enforcement-rules](images/prisma-enforcement-rules.png)

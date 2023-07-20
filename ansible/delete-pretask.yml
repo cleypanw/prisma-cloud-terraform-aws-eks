@@ -1,0 +1,18 @@
+- name: "Delete all pods and services to avoid blocking resources in AWS (nic, elastic-ip, etc...)"
+  hosts: "{{ target | default('nothing') }}"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ AWS_ACCESS_KEY_ID }}"
+    AWS_SECRET_ACCESS_KEY: "{{ AWS_SECRET_ACCESS_KEY }}"
+    AWS_DEFAULT_REGION: "{{ AWS_DEFAULT_REGION }}"
+    EKS_CLUSTER_NAME: "{{ EKS_CLUSTER_NAME }}"
+  vars:
+    ansible_user: ubuntu
+  become: true
+  tasks:
+    - name: Set Kubeconfig for cluster 
+      ansible.builtin.command: 
+        cmd: aws eks update-kubeconfig --name "{{ EKS_CLUSTER_NAME }}"
+
+    - name: Delete all namespaces (except default, kube-public, kube-system)
+      ansible.builtin.command: 
+        cmd:  kubectl delete services --all --all-namespaces
