@@ -10,11 +10,13 @@ It is possible to use this code to quickly deploy a cloud native environment (K8
 
 ### High Level Diagram
 
-![image-20230705180824939](images/image-20230705180824939.png)
+![hld](images/hld.png)
+
+
 
 ### Sequence Diagram
 
-![image-20230705151046376](images/image-20230705151046376.png)
+![EKS_full_deployment](images/EKS_full_deployment.png)
 
 
 
@@ -43,22 +45,25 @@ Open Settings > Security > Secrets and variables > Actions
 - <u>**Secrets**</u>
   - **AWS_ACCESS_KEY_ID** 
   - **AWS_SECRET_ACCESS_KEY**
-  - **BC_API_KEY**
-  - **SSH_PRIVATE_KEY** # Private key yes, will be used by ansible to connect to bastion instance to install tools
+  - **PC_ACCESS_KEY** (Prisma Cloud Access Key)
+  - **PC_SECRET_KEY** (Prisma Cloud Secret Key)
+  - **SSH_PRIVATE_KEY** (Private key yes, will be used by ansible to connect to bastion instance to install tools)
 
 
 
-![image-20230705162620331](images/image-20230705162620331.png)
+![Secrets_GA](images/Secrets_GA.png)
 
 ### Deploy Infrastructure Workflow 
 
 1) Open Actions > All Workflows > Deploy Infrastructure 
 
-![image-20230705162848610](images/image-20230705162848610.png)
+![actions](images/actions.png)
+
+
 
 2) Click on `Run workflow` , and **set your configuration**
 
-   ![image-20230705171503809](images/image-20230705171503809.png)
+   ![deploy_infra](images/deploy_infra.png)
 
 - AWS region in which to deploy the infrastructure (Mandatory) : **default = eu-west-3**
 
@@ -82,17 +87,28 @@ Open Settings > Security > Secrets and variables > Actions
 
    ![image-20230705172430122](images/image-20230705172430122.png)
 
-*NB: click on the stage to have details* ie ansible stage below ![image-20230705181321610](images/image-20230705181321610.png)
+
+
+*NB: click on the stage to have details* ie ansible stage below ![ansible](images/ansible.png)
 
 
 
 5. Retrieve the terraform outputs to connect to the instance by clicking on the`Deploy infra - Terraform Apply` job and scrolling to the bottom of this stage.
 
-![image-20230705172811409](images/image-20230705172811409.png)
+![outputs](images/outputs.png)
 
 
 
-🎉 **Congratulations your AWS Environment is now deployed.** 🎉
+🎉 **Congratulations your AWS Environment is now deployed, and your EKS cluster is discovered on Prisma Cloud ** 🎉
+
+
+
+#### Check on Prisma Cloud
+
+Defender is deployed on the cluster, check if the cluster appears well in the Radar view of Prisma Cloud.
+
+1. Connect on Prisma Cloud
+2. Go to Compute 
 
 
 

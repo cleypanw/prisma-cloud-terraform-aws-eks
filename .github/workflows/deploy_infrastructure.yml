@@ -115,11 +115,10 @@ jobs:
       working-directory: ./terraform/aws_infra
       shell: bash 
 
-    - name: Output- Terraform output
+    - name: set env from tf_output
       id: tf_output 
       run: |
         echo "EKS_CLUSTER_NAME=$(terraform output cluster_name)" >> $GITHUB_ENV
-        echo $EKS_CLUSTER_NAME
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}

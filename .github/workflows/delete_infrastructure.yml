@@ -16,7 +16,7 @@ on:
         default: 'eks'
 
 jobs:
-  terraform:
+  delete:
     name: Delete AWS infrastructure (VPC, EKS, Node Group, ec2, etc.)
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +29,24 @@ jobs:
       with:
         terraform_version: 1.5.2
         terraform_wrapper: false
+    
+    - name: kubectl delete pretasks- Run Ansible playbook
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        # Required, playbook filepath
+        playbook: delete-pretask.yml
+        # Directory where playbooks live
+        directory: ./ansible     
+        # SSH private key to connect to host
+        key: ${{secrets.SSH_PRIVATE_KEY}}
+        # Optional, additional flags to pass to ansible-playbook
+        options: |
+          --inventory ansible_inventory.ini
+          --extra-vars target="ec2-bastion-public"
+          --extra-vars AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          --extra-vars AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          --extra-vars AWS_DEFAULT_REGION=${{ github.event.inputs.AWS_REGION }}
+          --extra-vars EKS_CLUSTER_NAME=${{ env.EKS_CLUSTER_NAME }}
 
     - name: Init - Terraform Init
       id: init
