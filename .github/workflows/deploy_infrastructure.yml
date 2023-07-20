@@ -127,10 +127,11 @@ jobs:
       working-directory: ./terraform/aws_infra
       shell: bash 
 
-    - name: Download ansible inventory created during build phase
+    - name: Download ansible inventory and cluster name created during build phase
       id: download_inventory
       run: |
         aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/ansible_inventory.ini .
+        aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/cluster_name.txt .
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
