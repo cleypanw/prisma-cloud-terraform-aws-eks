@@ -218,7 +218,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
 3. Click  `Run workflow`, and delete will start
 
-![image-20230705192214501](images/image-20230705192214501.png)
+![delete_infra](images/delete_infra.png)
 
 
 
