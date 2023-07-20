@@ -13,7 +13,10 @@
       ansible.builtin.command: 
         cmd: aws eks update-kubeconfig --name "{{ EKS_CLUSTER_NAME }}"
 
-    - name: Delete all namespaces
+    - name: Delete all namespaces (except default, kube-public, kube-system)
       ansible.builtin.command: 
-        cmd:  for each in $(kubectl get ns |awk '{print$1}' | egrep -v "NAME|kube-system"); do echo deleting $each namespace; kubectl delete ns $each; done
+        cmd:  kubectl delete ns --all
 
+    - name: Delete all resources in default namespace
+      ansible.builtin.command: 
+        cmd:  kubectl delete all --all -n default
