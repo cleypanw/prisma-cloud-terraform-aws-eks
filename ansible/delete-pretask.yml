@@ -15,8 +15,4 @@
 
     - name: Delete all namespaces (except default, kube-public, kube-system)
       ansible.builtin.command: 
-        cmd:  kubectl delete daemonsets,replicasets,services,deployments,rc,ingress --all --all-namespaces
-
-    - name: Delete all resources in default namespace (to make sure no one has created resources in it)
-      ansible.builtin.command: 
-        cmd:  kubectl delete all --all -n default
+        cmd:  kubectl delete services --all --all-namespaces
