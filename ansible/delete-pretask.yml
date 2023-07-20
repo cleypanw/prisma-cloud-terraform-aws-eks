@@ -14,5 +14,5 @@
         cmd: aws eks update-kubeconfig --name "{{ EKS_CLUSTER_NAME }}"
 
     - name: Delete all namespaces
-      command:  for each in $(kubectl get ns -o jsonpath="{.items[*].metadata.name}" | grep -v kube-system); do kubectl delete ns $each; done
+      command:  for each in $(kubectl get ns |awk '{print$1}' | egrep -v "NAME|kube-system"); do echo $each; do echo deleting $each namespace; kubectl delete ns $each; done
 
