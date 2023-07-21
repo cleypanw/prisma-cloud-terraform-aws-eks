@@ -23,11 +23,11 @@ on:
         required: true
         type: choice
         options:
-        - 1
-        - 2
-        - 3
-        - 4
-        - 5
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
         default: '3'
       WORKER_NODES_TYPE:
         description: 'Worker nodes type in eks_cluster'
@@ -36,127 +36,126 @@ on:
       PUBLIC_SSH_KEY:
         description: 'Public ssh key to connect to ec2-bastion host'
         required: true
-        default: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCzLnC7bnTFB8bEhWCUHh8B418rFwla7iJYclITd/59ZpZft3EdgeW9y/uLUfMH8f5P7be5j0NYLfD6jpou0VHdSkLymNJxaQDuvZBapW4jQI4luqRmN4xFeDIT+0BqT3sJotqU/n41NOGclEv/OMv6msulnC8A7wOBkrMJPzgNgs4a0+a8f/Slp9aAHpgKiWREwtFJDczFM0wUkQldEALg3QQt7qmpZgVx3KQi6u5YI0EqdjfMSP+qnY7Lk9yn2gQPPAR+NGgqz9d7bpsgqhggpw8k+Yw75bROdnk90Cc07zIg+lbBsyBoVNA+mRtejTC1IS9F1Pa+WdVtD3xpes7y0RCx6pxkTfLjB725FRs7EQ31lr031lC4fHB/bwfbU7QsCdHqrOJosKlNwG49qLc57LPS6qUKcJSCAjj3MZjTDNDuL8cxbdOy60fgI9n0YsDIY+5/YBItfsQStdJFzhLjsYN1oJx3HYF5ew+gngx8CzEGJ2s/fSpwducGMlFUcEjPAlVh94DpYubj06opOW1SM3w8U9BvUwC87uNhkI5Pn51kh7U2bOMJmxSnkl4RHmC6qj08HjCBQYaqzGEXstaoIExykTfHm3zFv4KiTMfH6fN5eaRpwvL3AYzAyAA6FbpXM2W8x35PM1lWgarrybg6iC3zYWDkjXlscD1Iu1uPYw== cley'   
+        default: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCzLnC7bnTFB8bEhWCUHh8B418rFwla7iJYclITd/59ZpZft3EdgeW9y/uLUfMH8f5P7be5j0NYLfD6jpou0VHdSkLymNJxaQDuvZBapW4jQI4luqRmN4xFeDIT+0BqT3sJotqU/n41NOGclEv/OMv6msulnC8A7wOBkrMJPzgNgs4a0+a8f/Slp9aAHpgKiWREwtFJDczFM0wUkQldEALg3QQt7qmpZgVx3KQi6u5YI0EqdjfMSP+qnY7Lk9yn2gQPPAR+NGgqz9d7bpsgqhggpw8k+Yw75bROdnk90Cc07zIg+lbBsyBoVNA+mRtejTC1IS9F1Pa+WdVtD3xpes7y0RCx6pxkTfLjB725FRs7EQ31lr031lC4fHB/bwfbU7QsCdHqrOJosKlNwG49qLc57LPS6qUKcJSCAjj3MZjTDNDuL8cxbdOy60fgI9n0YsDIY+5/YBItfsQStdJFzhLjsYN1oJx3HYF5ew+gngx8CzEGJ2s/fSpwducGMlFUcEjPAlVh94DpYubj06opOW1SM3w8U9BvUwC87uNhkI5Pn51kh7U2bOMJmxSnkl4RHmC6qj08HjCBQYaqzGEXstaoIExykTfHm3zFv4KiTMfH6fN5eaRpwvL3AYzAyAA6FbpXM2W8x35PM1lWgarrybg6iC3zYWDkjXlscD1Iu1uPYw== cley'
 
 jobs:
   deploy:
     name: Deploy AWS infrastructure to host EKS (VPC, EKS, Node Group, S3, etc.)
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # pin@v2
 
-    - name: Checkout repo
-      uses: actions/checkout@v2
+      - name: Run Security Check - Checkov / Prisma Cloud
+        id: Prisma_Cloud
+        uses: bridgecrewio/checkov-action@819c40b715182bef1211331492e7a4c2d5cbdf2d # pin@master
+        env:
+          PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
+        with:
+          api-key: ${{ secrets.PC_ACCESS_KEY }}::${{ secrets.PC_SECRET_KEY }}
+          quiet: true
+          use_enforcement_rules: true
+          framework: terraform
+          output_format: cli
+          directory: .
+          download_external_modules: false
 
-    - name: Run Security Check - Checkov / Prisma Cloud 
-      id: Prisma_Cloud
-      uses: bridgecrewio/checkov-action@master 
-      env:
-        PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
-      with:
-        api-key: ${{ secrets.PC_ACCESS_KEY }}::${{ secrets.PC_SECRET_KEY }}
-        quiet: true
-        use_enforcement_rules: true
-        framework: terraform
-        output_format: cli
-        directory: .
-        download_external_modules: false 
+      - name: Setup tool - install Terraform
+        uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # pin@v2
+        with:
+          terraform_version: 1.5.2
+          terraform_wrapper: false
 
-    - name: Setup tool - install Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.2
-        terraform_wrapper: false
-    
-    - name: Setup tool - install AWS cli
-      uses: unfor19/install-aws-cli-action@v1
-    
-    - name: Prerequisite - Check if exists or Create S3 Bucket for tfstate 
-      id: s3
-      run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }} ${{ github.event.inputs.AWS_REGION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./scripts
-      shell: bash 
+      - name: Setup tool - install AWS cli
+        uses: unfor19/install-aws-cli-action@457b7980b125044247e455d87b9a26fc2299b787 # pin@v1
 
-    - name: Init - Terraform Init
-      id: init
-      run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -backend-config="region=${{ github.event.inputs.AWS_REGION }}" 
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./terraform/aws_infra
-      shell: bash 
+      - name: Prerequisite - Check if exists or Create S3 Bucket for tfstate
+        id: s3
+        run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }} ${{ github.event.inputs.AWS_REGION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./scripts
+        shell: bash
 
-    - name: Validate - Terraform Validate
-      id: validate
-      run: terraform validate
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./terraform/aws_infra
-      shell: bash 
+      - name: Init - Terraform Init
+        id: init
+        run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -backend-config="region=${{ github.event.inputs.AWS_REGION }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./terraform/aws_infra
+        shell: bash
 
-    - name: Deploy infra - Terraform Apply
-      id: apply
-      run: |
-        terraform apply -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -var="worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }}" -var="worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}" -var="public_ssh_key=${{ github.event.inputs.PUBLIC_SSH_KEY }}" -auto-approve
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./terraform/aws_infra
-      shell: bash 
+      - name: Validate - Terraform Validate
+        id: validate
+        run: terraform validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./terraform/aws_infra
+        shell: bash
 
-    - name: set env from tf_output
-      id: tf_output 
-      run: |
-        echo "EKS_CLUSTER_NAME=$(terraform output cluster_name)" >> $GITHUB_ENV
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./terraform/aws_infra
-      shell: bash 
+      - name: Deploy infra - Terraform Apply
+        id: apply
+        run: |
+          terraform apply -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -var="worker_nodes_desired_size=${{ github.event.inputs.WORKER_NODES_NUMBER }}" -var="worker_nodes_type=${{ github.event.inputs.WORKER_NODES_TYPE }}" -var="public_ssh_key=${{ github.event.inputs.PUBLIC_SSH_KEY }}" -auto-approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./terraform/aws_infra
+        shell: bash
 
-    - name: Download ansible inventory and cluster name created during build phase
-      id: download_inventory
-      run: |
-        aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/ansible_inventory.ini .
-        aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/cluster_name.txt .
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./ansible
-      shell: bash 
-    
-    - name: Install Tools on ec2-bastion - Run Ansible playbook
-      uses: dawidd6/action-ansible-playbook@v2
-      with:
-        # Required, playbook filepath
-        playbook: install-tools.yml
-        # Directory where playbooks live
-        directory: ./ansible     
-        # SSH private key to connect to host
-        key: ${{secrets.SSH_PRIVATE_KEY}}
-        # Optional, additional flags to pass to ansible-playbook
-        options: |
-          --inventory ansible_inventory.ini
-          --extra-vars target="ec2-bastion-public"
-          --extra-vars pc_api_url=${{ github.event.inputs.PRISMA_API_URL }}
-          --extra-vars pc_access_key=${{ secrets.PC_ACCESS_KEY }}
-          --extra-vars pc_secret_key=${{ secrets.PC_SECRET_KEY }}
-          --extra-vars AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          --extra-vars AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          --extra-vars AWS_DEFAULT_REGION=${{ github.event.inputs.AWS_REGION }}
-          --extra-vars EKS_CLUSTER_NAME=${{ env.EKS_CLUSTER_NAME }}
+      - name: set env from tf_output
+        id: tf_output
+        run: |
+          echo "EKS_CLUSTER_NAME=$(terraform output cluster_name)" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./terraform/aws_infra
+        shell: bash
+
+      - name: Download ansible inventory and cluster name created during build phase
+        id: download_inventory
+        run: |
+          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/ansible_inventory.ini .
+          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/cluster_name.txt .
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./ansible
+        shell: bash
+
+      - name: Install Tools on ec2-bastion - Run Ansible playbook
+        uses: dawidd6/action-ansible-playbook@5d970176ea4bfd99a3f5004d48e293fe0994eda1 # pin@v2
+        with:
+          # Required, playbook filepath
+          playbook: install-tools.yml
+          # Directory where playbooks live
+          directory: ./ansible
+          # SSH private key to connect to host
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          # Optional, additional flags to pass to ansible-playbook
+          options: |
+            --inventory ansible_inventory.ini
+            --extra-vars target="ec2-bastion-public"
+            --extra-vars pc_api_url=${{ github.event.inputs.PRISMA_API_URL }}
+            --extra-vars pc_access_key=${{ secrets.PC_ACCESS_KEY }}
+            --extra-vars pc_secret_key=${{ secrets.PC_SECRET_KEY }}
+            --extra-vars AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            --extra-vars AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            --extra-vars AWS_DEFAULT_REGION=${{ github.event.inputs.AWS_REGION }}
+            --extra-vars EKS_CLUSTER_NAME=${{ env.EKS_CLUSTER_NAME }}

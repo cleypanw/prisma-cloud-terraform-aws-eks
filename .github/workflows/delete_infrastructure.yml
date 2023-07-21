@@ -20,77 +20,76 @@ jobs:
     name: Delete AWS infrastructure (VPC, EKS, Node Group, ec2, etc.)
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # pin@v2
 
-    - name: Checkout repo
-      uses: actions/checkout@v2
+      - name: Setup tool - install Terraform
+        uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # pin@v2
+        with:
+          terraform_version: 1.5.2
+          terraform_wrapper: false
 
-    - name: Setup tool - install Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.2
-        terraform_wrapper: false
+      - name: Download ansible inventory and cluster name created during build phase
+        id: download_inventory
+        run: |
+          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/ansible_inventory.ini .
+          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/cluster_name.txt .
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./ansible
+        shell: bash
 
-    - name: Download ansible inventory and cluster name created during build phase
-      id: download_inventory
-      run: |
-        aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/ansible_inventory.ini .
-        aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate/cluster_name.txt .
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./ansible
-      shell: bash 
+      - name: Set ESK Cluster_name
+        id: set_cluster_name
+        run: |
+          echo "EKS_CLUSTER_NAME=$(cat cluster_name.txt)" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./ansible
+        shell: bash
 
-    - name: Set ESK Cluster_name
-      id: set_cluster_name
-      run: |
-        echo "EKS_CLUSTER_NAME=$(cat cluster_name.txt)" >> $GITHUB_ENV
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./ansible
-      shell: bash 
-    
-    - name: kubectl delete pretasks- Run Ansible playbook
-      uses: dawidd6/action-ansible-playbook@v2
-      with:
-        # Required, playbook filepath
-        playbook: delete-pretask.yml
-        # Directory where playbooks live
-        directory: ./ansible     
-        # SSH private key to connect to host
-        key: ${{secrets.SSH_PRIVATE_KEY}}
-        # Optional, additional flags to pass to ansible-playbook
-        options: |
-          --inventory ansible_inventory.ini
-          --extra-vars target="ec2-bastion-public"
-          --extra-vars AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          --extra-vars AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          --extra-vars AWS_DEFAULT_REGION=${{ github.event.inputs.AWS_REGION }}
-          --extra-vars EKS_CLUSTER_NAME=${{ env.EKS_CLUSTER_NAME }}
+      - name: kubectl delete pretasks- Run Ansible playbook
+        uses: dawidd6/action-ansible-playbook@5d970176ea4bfd99a3f5004d48e293fe0994eda1 # pin@v2
+        with:
+          # Required, playbook filepath
+          playbook: delete-pretask.yml
+          # Directory where playbooks live
+          directory: ./ansible
+          # SSH private key to connect to host
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          # Optional, additional flags to pass to ansible-playbook
+          options: |
+            --inventory ansible_inventory.ini
+            --extra-vars target="ec2-bastion-public"
+            --extra-vars AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            --extra-vars AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            --extra-vars AWS_DEFAULT_REGION=${{ github.event.inputs.AWS_REGION }}
+            --extra-vars EKS_CLUSTER_NAME=${{ env.EKS_CLUSTER_NAME }}
 
-    - name: Init - Terraform Init
-      id: init
-      run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -backend-config="region=${{ github.event.inputs.AWS_REGION }}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./terraform/aws_infra
-      shell: bash 
+      - name: Init - Terraform Init
+        id: init
+        run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -backend-config="region=${{ github.event.inputs.AWS_REGION }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./terraform/aws_infra
+        shell: bash
 
-    - name: Destroy - Terraform Destroy
-      id: destroy
-      run: terraform apply -destroy -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -auto-approve
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
-      working-directory: ./terraform/aws_infra
-      shell: bash 
+      - name: Destroy - Terraform Destroy
+        id: destroy
+        run: terraform apply -destroy -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}" -auto-approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ github.event.inputs.AWS_REGION }}
+        working-directory: ./terraform/aws_infra
+        shell: bash
