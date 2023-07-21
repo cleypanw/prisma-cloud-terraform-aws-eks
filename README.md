@@ -203,7 +203,7 @@ It is only possible to connect to the Kubernetes cluster APIs via the **ec2-bast
 
 1. Open Actions > All Workflows > Delete Infrastructure 
 
-![actions](/Users/cley/GIT_CLEYPANW/prisma-cloud-terraform-aws-eks/actions.png)
+![actions](images/actions.png)
 
 
 
