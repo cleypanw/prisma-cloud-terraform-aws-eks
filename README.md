@@ -283,3 +283,7 @@ Throughout the deployment, Prisma was involved in the control of Policies from t
 *NB: Possibility of blocking the PR without being able to merge it or Build deployment,  depends on the security code configuration enforcement rules in Prisma Cloud*
 
 ![prisma-enforcement-rules](images/prisma-enforcement-rules.png)
+
+
+
+

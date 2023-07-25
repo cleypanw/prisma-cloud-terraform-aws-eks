@@ -30,21 +30,21 @@ data "aws_ami" "ubuntu" {
 }
 
 # Generate Random 3 chars
-resource "random_string" "suffix" {
-  length  = 3
-  special = false
-  upper   = false
-}
+#resource "random_string" "suffix" {
+#  length  = 3
+#  special = false
+#  upper   = false
+#}
 
 # Define local var that will be use by TF
 locals {
-  cluster_name      = "${var.name_prefix}-eks-${random_string.suffix.result}"
-  vpc_name          = "${var.name_prefix}-vpc-${random_string.suffix.result}"
-  s3_name           = "${var.name_prefix}-s3-tfstate"
-  ec2_bastion_name  = "${var.name_prefix}-ec2-bastion-${random_string.suffix.result}"
-  sshkey_name       = "${var.name_prefix}-sshkey-${random_string.suffix.result}"
-  sg_name           = "${var.name_prefix}-sg-${random_string.suffix.result}"
-  ecr_name          = "${var.name_prefix}-ecr-${random_string.suffix.result}"
+  cluster_name      = "${var.name_prefix}-eks-${var.name_suffix}"
+  vpc_name          = "${var.name_prefix}-vpc-${var.name_suffix}"
+  s3_name           = "${var.name_prefix}-s3-tfstate-${var.name_suffix}"
+  ec2_bastion_name  = "${var.name_prefix}-ec2-bastion-${var.name_suffix}"
+  sshkey_name       = "${var.name_prefix}-sshkey-${var.name_suffix}"
+  sg_name           = "${var.name_prefix}-sg-${var.name_suffix}"
+  ecr_name          = "${var.name_prefix}-ecr-${var.name_suffix}"
 }
 
 
