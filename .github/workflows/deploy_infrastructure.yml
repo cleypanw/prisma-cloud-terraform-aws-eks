@@ -69,6 +69,10 @@ jobs:
       - name: Setup tool - install AWS cli
         uses: unfor19/install-aws-cli-action@457b7980b125044247e455d87b9a26fc2299b787 # pin@v1
 
+
+      - name: Get GitHub Username
+        run: echo "GitHub Username: ${{ env.GITHUB_ACTOR }}"
+
       - name: Prerequisite - Check if exists or Create S3 Bucket for tfstate
         id: s3
         run: ./check_s3_bucket.sh ${{ github.event.inputs.NAME_PREFIX }} ${{ github.event.inputs.AWS_REGION }}
