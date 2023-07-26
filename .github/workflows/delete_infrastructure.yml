@@ -32,11 +32,20 @@ jobs:
       - name: Setup tool - install AWS cli
         uses: unfor19/install-aws-cli-action@457b7980b125044247e455d87b9a26fc2299b787 # pin@v1
 
+      - name: Prerequisite - Github actor name control to convert to the expected format (underscore and uppercase removed and size limited to 10 chars)
+        id: github_name_control
+        run: |
+          echo "ACTOR_PREFIX=$(github_actor_name_control.sh ${{ github.actor }})" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ./scripts
+        shell: bash
+
       - name: Download ansible inventory and cluster name created during build phase
         id: download_inventory
         run: |
-          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-${{ github.actor }}-s3-tfstate/ansible_inventory.ini .
-          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-${{ github.actor }}-s3-tfstate/cluster_name.txt .
+          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-${{ env.ACTOR_PREFIX }}-s3-tfstate/ansible_inventory.ini .
+          aws s3 cp s3://${{ github.event.inputs.NAME_PREFIX }}-${{ env.ACTOR_PREFIX }}-s3-tfstate/cluster_name.txt .
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,7 +87,7 @@ jobs:
 
       - name: Init - Terraform Init
         id: init
-        run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-${{ github.actor }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -backend-config="region=${{ github.event.inputs.AWS_REGION }}"
+        run: terraform init -backend-config="bucket=${{ github.event.inputs.NAME_PREFIX }}-${{ env.ACTOR_PREFIX }}-s3-tfstate" -backend-config="key=${{ github.event.inputs.NAME_PREFIX }}-infra.tfstate" -backend-config="region=${{ github.event.inputs.AWS_REGION }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -89,7 +98,7 @@ jobs:
 
       - name: Destroy - Terraform Destroy
         id: destroy
-        run: terraform apply -destroy -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}-${{ github.actor }}" -auto-approve
+        run: terraform apply -destroy -var="region=${{ github.event.inputs.AWS_REGION }}" -var="name_prefix=${{ github.event.inputs.NAME_PREFIX }}-${{ env.ACTOR_PREFIX }}" -auto-approve
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -101,7 +110,7 @@ jobs:
       - name: Remove objects in S3 bucket
         id: remove_objects_s3
         run: |
-          aws s3 rm s3://${{ github.event.inputs.NAME_PREFIX }}-${{ github.actor }}-s3-tfstate --recursive
+          aws s3 rm s3://${{ github.event.inputs.NAME_PREFIX }}-${{ env.ACTOR_PREFIX }}-s3-tfstate --recursive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -112,7 +121,7 @@ jobs:
       - name: Delete S3 bucket
         id: delete_s3
         run: |
-          aws s3api delete-bucket --bucket ${{ github.event.inputs.NAME_PREFIX }}-${{ github.actor }}-s3-tfstate
+          aws s3api delete-bucket --bucket ${{ github.event.inputs.NAME_PREFIX }}-${{ env.ACTOR_PREFIX }}-s3-tfstate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
