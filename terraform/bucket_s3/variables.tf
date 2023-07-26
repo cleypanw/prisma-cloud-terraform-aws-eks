@@ -9,3 +9,9 @@ variable "name_prefix" {
   type        = string
   default     = "eks"
 }
+
+variable "name_prefix" {
+  description = "GitHub actor who triggered the creation"
+  type        = string
+  default     = "actor"
+}
