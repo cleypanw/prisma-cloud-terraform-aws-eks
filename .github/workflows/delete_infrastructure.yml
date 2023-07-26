@@ -35,10 +35,10 @@ jobs:
       - name: Prerequisite - Github actor name control to convert to the expected format (underscore and uppercase removed and size limited to 10 chars)
         id: github_name_control
         run: |
-          ./github_actor_name_control.sh ${{ github.actor }}
-          echo $ACTOR
-          echo "ACTOR_PREFIX=$ACTOR" >> $GITHUB_ENV
-          echo $ACTOR_PREFIX
+          ./github_actor_name_control.sh ${{ github.actor }} >> ACTOR
+          cat ACTOR
+          echo "ACTOR_PREFIX=$(cat ACTOR)" >> $GITHUB_ENV
+          echo ${{ env.ACTOR_PREFIX }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./scripts

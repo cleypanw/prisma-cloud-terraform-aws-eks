@@ -15,4 +15,4 @@ new_actor=$(echo "$actor" | tr '_' '-' | tr '[:upper:]' '[:lower:]')
 new_actor="${new_actor:0:10}"
 
 # Print the modified actor name
-ACTOR=$new_actor
+echo $new_actor
