@@ -14,5 +14,5 @@ new_actor=$(echo "$actor" | tr '_' '-' | tr '[:upper:]' '[:lower:]')
 # Limit the actor name to 10 characters
 new_actor="${new_actor:0:10}"
 
-# Print the modified filename
-echo "$new_actor"
+# Print the modified actor name
+ACTOR=$new_actor
