@@ -5,7 +5,7 @@ provider "aws" {
 data "aws_availability_zones" "available" {}
 
 locals {
-  s3_name     = "${var.name_prefix}-s3-tfstate"
+  s3_name     = "${var.name_prefix}-${var.actor}-s3-tfstate"
 }
 
 
