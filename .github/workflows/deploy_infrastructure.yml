@@ -73,7 +73,9 @@ jobs:
         id: github_name_control
         run: |
           ./github_actor_name_control.sh ${{ github.actor }}
+          echo $ACTOR
           echo "ACTOR_PREFIX=$ACTOR" >> $GITHUB_ENV
+          echo $ACTOR_PREFIX
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./scripts
