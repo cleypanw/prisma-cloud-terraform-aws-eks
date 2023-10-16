@@ -1,6 +1,10 @@
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "3.14.2"
+
+  #source  = "terraform-aws-modules/vpc/aws"
+  #version = "3.14.2"
+  # CKV_TF_1 use Terraform module sources do not use a git url with a commit hash revision 
+  # https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-code-security-policy-reference/supply-chain-policies/terraform-policies/ensure-terraform-module-sources-use-git-url-with-commit-hash-revision
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=bf9a89bf447a9c866dc0d30486aec5a24dbe2631" #CKV_TF_1
 
   name = local.vpc_name
 

@@ -1,6 +1,9 @@
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "19.0.4"
+  #source  = "terraform-aws-modules/eks/aws"
+  #version = "19.0.4"
+  # CKV_TF_1 use Terraform module sources do not use a git url with a commit hash revision 
+  # https://docs.paloaltonetworks.com/prisma/prisma-cloud/prisma-cloud-code-security-policy-reference/supply-chain-policies/terraform-policies/ensure-terraform-module-sources-use-git-url-with-commit-hash-revision
+  source  = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=51cc6bec880ac8dc361b60a4b05d5f2bcd98eb6a" # CKV_TF_1
 
   cluster_name    = local.cluster_name
   cluster_version = "1.27"
