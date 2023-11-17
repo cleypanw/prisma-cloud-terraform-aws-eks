@@ -72,6 +72,7 @@ jobs:
 
       - name: kubectl delete pretasks - Run Ansible playbook
         uses: dawidd6/action-ansible-playbook@5d970176ea4bfd99a3f5004d48e293fe0994eda1 # pin@v2
+        continue-on-error: true
         with:
           # Required, playbook filepath
           playbook: delete-pretask.yml
