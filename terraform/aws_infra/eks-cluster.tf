@@ -1,9 +1,10 @@
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "19.0.4"
+  #source  = "terraform-aws-modules/eks/aws"  # Uncomment to Generate CKV_TF_1 https://docs.prismacloud.io/en/enterprise-edition/policy-reference/supply-chain-policies/terraform-policies/ensure-terraform-module-sources-use-git-url-with-commit-hash-revision
+  #version = "19.21.0"                        # Uncomment to Generate CKV_TF_1
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=2cb1fac31b0fc2dd6a236b0c0678df75819c5a3b" # commit hash of version 19.21.0
 
   cluster_name    = local.cluster_name
-  cluster_version = "1.27"
+  cluster_version = "1.28"
 
   vpc_id                                = module.vpc.vpc_id
   subnet_ids                            = module.vpc.private_subnets
