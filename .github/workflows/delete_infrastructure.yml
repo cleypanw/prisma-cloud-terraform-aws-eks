@@ -21,16 +21,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # pin@v2
+        uses: actions/checkout@v2
 
       - name: Setup tool - install Terraform
-        uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # pin@v2
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.2
           terraform_wrapper: false
 
       - name: Setup tool - install AWS cli
-        uses: unfor19/install-aws-cli-action@457b7980b125044247e455d87b9a26fc2299b787 # pin@v1
+        uses: unfor19/install-aws-cli-action@v1
 
       - name: Prerequisite - Github actor name control to convert to the expected format (underscore and uppercase removed and size limited to 10 chars)
         id: github_name_control
@@ -71,7 +71,7 @@ jobs:
         shell: bash
 
       - name: kubectl delete pretasks - Run Ansible playbook
-        uses: dawidd6/action-ansible-playbook@5d970176ea4bfd99a3f5004d48e293fe0994eda1 # pin@v2
+        uses: dawidd6/action-ansible-playbook@v2
         continue-on-error: true
         with:
           # Required, playbook filepath
