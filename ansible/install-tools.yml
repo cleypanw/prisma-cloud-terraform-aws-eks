@@ -24,8 +24,8 @@
     - name: Install aws-cli
       ansible.builtin.command: sudo snap install aws-cli --classic
   
-    - name: Download kubectl 1.23.6
-      ansible.builtin.command: sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl 
+    - name: Download kubectl 1.30.3
+      ansible.builtin.command: sudo curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.30.3/bin/linux/amd64/kubectl 
 
     - name: Install kubectl
       ansible.builtin.command: sudo mv kubectl /usr/local/bin/kubectl
